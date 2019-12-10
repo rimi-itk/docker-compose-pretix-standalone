@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  pretix:
+    image: pretix/standalone:latest
+    depends_on:
+      - pretix_database
+      - redis
+    ports:
+      - "8345:80"
+    volumes:
+      - ${PWD}/.docker/pretix/etc/pretix.cfg:/etc/pretix/pretix.cfg
+      - ${PWD}/data/pretix:/data
+
+  pretix_database:
+    image: postgres:12.1
+    ports:
+      - '3306'
+    environment:
+      POSTGRES_USER: pretix
+      POSTGRES_PASSWORD: pretix
+      POSTGRES_DATABASE: pretix
+      # @see https://hub.docker.com/_/022689bf-dfd8-408f-9e1c-19acac32e57b
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ${PWD}/data/postgres:/var/lib/postgresql/data/pgdata
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379"
